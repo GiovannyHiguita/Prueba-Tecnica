@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      background: black;
+    }
+    .contenedor-principal {
+      width: 80%;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .contenedor-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .texto-accion {
+      font-size: 24px;
+      margin-right: 20px;
+    }
+    .texto-bienvenida {
+      font-size: 24px;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 40px;
+    }
+    .correo-rojo {
+      color: red;
+      font-weight: bold;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="contenedor-principal">
+    <div class="texto-bienvenida">
+      <h2 id="correo"></h2>
+    </div>
+    <div class="contenedor-flex">
+      <div class="texto-accion">
+        <h2>Editar Perfil</h2>
+      </div>
+      <button id="editar-perfil" class="btn btn-primary">Ir a editar perfil</button>
+    </div>
+    <div class="contenedor-flex">
+      <div class="texto-accion">
+        <h2>Gestionar Tareas</h2>
+      </div>
+      <button id="gestionar-tareas" class="btn btn-success">Ir a gestionar tareas</button>
+    </div>
+    <div class="contenedor-flex">
+      <div class="texto-accion">
+        <h2>Cerrar Sesión</h2>
+      </div>
+      <button id="cerrar-sesion" class="btn btn-danger">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      const cookieMatch = document.cookie.match(/token=([^;]*)/);
+      const token = cookieMatch ? cookieMatch[1] : null;
+      console.log('Token:', token);
+
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.get('http://localhost:3001/protected')
+          .then(response => {
+            const email = response.data.email;
+            document.getElementById('correo').innerHTML = `Bienvenido, <span class="correo-rojo"><strong>${email}</strong></span>`;
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      } else {
+        window.location.href = 'http://localhost:3001/inicio';
+      }
+    });
+
+    document.getElementById('cerrar-sesion').addEventListener('click', () => {
+      axios.get('http://localhost:3001/logout')
+        .then(() => {
+          window.location.href = 'http://localhost:3001/inicio';
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    });
+
+    document.getElementById('editar-perfil').addEventListener('click', () => {
+      // Agrega la lógica para editar perfil aquí
+      console.log('Editar perfil');
+      // Redirecciona a la página de edición de perfil
+      window.location.href = 'http://localhost:3001/editProfile';
+    });
+
+    document.getElementById('gestionar-tareas').addEventListener('click', () => {
+      // Agrega la lógica para gestionar tareas aquí
+      console.log('Gestionar tareas');
+      // Redirecciona a la página de gestión de tareas
+      window.location.href = 'http://localhost:3001/gestionTareas';
+    });
+  </script>
+</body>
+</html>

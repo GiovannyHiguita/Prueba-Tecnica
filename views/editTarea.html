@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Tarea</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      background: black;
+    }
+    .contenedor-principal {
+      width: 80%;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .contenedor-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .texto-accion {
+      font-size: 24px;
+      margin-right: 20px;
+    }
+    .texto-bienvenida {
+      font-size: 24px;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 40px;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="contenedor-principal">
+    <div class="texto-bienvenida">
+      <h2>Editar Tarea</h2>
+    </div>
+    <div class="contenedor-flex">
+      <form id="form-edit-tarea" method="post" style="width: 80%; margin: 40px auto; text-align: center;">
+        <div style="height: 20px;"></div>
+        <div class="form-group">
+          <input type="text" id="titulo" name="titulo" class="form-control" placeholder="Título">
+        </div>
+        <div class="form-group">
+          <textarea id="descripcion" name="descripcion" class="form-control" placeholder="Descripción"></textarea>
+        </div>
+        <div class="form-group">
+          <select id="estado" name="estado" class="form-control">
+            <option value="pendiente">Pendiente</option>
+            <option value="completada">Completada</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+          <button type="submit" class="btn btn-primary btn-sm">Actualizar tarea</button>
+          <button type="button" class="btn btn-warning btn-sm" onclick="location.href='/listaTareas'">Regresar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      const url = window.location.pathname;
+      const id = url.split('/')[2];
+  
+      // Obtener datos de la tarea
+      fetch('/editarTarea/' + id + '/data').then(response => response.json()).then(data => {
+        document.getElementById('titulo').value = data.title;
+        document.getElementById('descripcion').value = data.description;
+        document.getElementById('estado').value = data.completed ? 'completada' : 'pendiente';
+      }).catch(err => console.error(err));
+  
+      // Actualizar tarea
+      document.getElementById('form-edit-tarea').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const titulo = document.getElementById('titulo').value.trim();
+        const descripcion = document.getElementById('descripcion').value.trim();
+        const estado = document.getElementById('estado').value;
+        const urlPatch = `/editarTarea/${id}`;
+
+        if (titulo === '' || descripcion === '') {
+          alert('Campos obligatorios: Título y Descripción');
+          return;
+        }
+
+        try {
+          const response = await fetch(urlPatch, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ titulo, descripcion, estado }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            alert('Tarea actualizada con éxito');
+            location.href = '/listaTareas';
+          } else {
+            alert(data.mensaje);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

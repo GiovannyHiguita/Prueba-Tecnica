@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Tareas</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      background: black;
+    }
+    .contenedor-principal {
+      width: 80%;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .contenedor-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .texto-accion {
+      font-size: 24px;
+      margin-right: 20px;
+    }
+    .texto-bienvenida {
+      font-size: 24px;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 40px;
+    }
+    .correo-rojo {
+      color: red;
+      font-weight: bold;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="contenedor-principal">
+    <div class="texto-bienvenida">
+      <h2>Gestión de Tareas</h2>
+    </div>
+    <div class="contenedor-flex">
+      <div class="texto-accion">
+        <h2>Crear Tarea</h2>
+      </div>
+      <button id="crear-tarea" class="btn btn-primary">Crear Tarea</button>
+    </div>
+    <div class="contenedor-flex">
+      <div class="texto-accion">
+        <h2>Lista de Tareas</h2>
+      </div>
+      <button id="lista-tareas" class="btn btn-success">Lista de Tareas</button>
+    </div>
+    <div class="contenedor-flex">
+      <div class="texto-accion">
+        <h2>Volver al Inicio</h2>
+      </div>
+      <button id="volver-inicio" class="btn btn-danger">Volver al Inicio</button>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+  
+  <script>
+    document.getElementById('crear-tarea').addEventListener('click', () => {
+      window.location.href = 'http://localhost:3001/crearTarea';
+    });
+
+    document.getElementById('lista-tareas').addEventListener('click', () => {
+      window.location.href = 'http://localhost:3001/listaTareas';
+    });
+
+    document.getElementById('volver-inicio').addEventListener('click', () => {
+      window.location.href = 'http://localhost:3001/index';
+    });
+  </script>
+</body>
+</html>

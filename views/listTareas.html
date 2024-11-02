@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tareas</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      background: black;
+    }
+    .contenedor-principal {
+      width: 80%;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .contenedor-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .texto-accion {
+      font-size: 24px;
+      margin-right: 20px;
+    }
+    .texto-bienvenida {
+      font-size: 24px;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 40px;
+    }
+    .tabla-tareas {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tabla-tareas th, .tabla-tareas td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    .tabla-tareas th {
+      background-color: #f0f0f0;
+    }
+    .tabla-tareas th {
+      background-color: #f0f0f0;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="contenedor-principal">
+    <div class="texto-bienvenida">
+      <h2>Lista de Tareas</h2>
+    </div>
+    <div style="background-color: #f0f0f0; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #ddd;">
+        <h3>Lista</h3>
+        <button class="btn btn-primary" onclick="window.location.href='/gestionTareas'">Regresar</button>
+      </div>
+      <table class="tabla-tareas" style="margin-top: 20px;">
+        <thead style="text-align: center;">
+          <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="lista-tareas"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+
+  <script>
+    axios.get('/listTasks').then(response => {
+      const tareas = response.data;
+      const listaTareas = document.getElementById('lista-tareas');
+  
+      tareas.forEach(tarea => {
+        const estado = tarea.completed ? 
+          `<strong style="color: green;">Completada</strong>` : 
+          `<strong style="color: red;">Pendiente</strong>`;
+        const tareaHTML = `
+          <tr>
+            <td>${tarea.title}</td>
+            <td>${tarea.description}</td>
+            <td style="text-align: center;">${estado}</td>
+            <td style="text-align: center;">
+              <button class="btn ${tarea.completed ? 'btn-danger' : 'btn-success'} btn-sm" onclick="completarTarea('${tarea._id}', ${tarea.completed})">
+                ${tarea.completed ? 'Pendiente' : 'Completar'}
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="editarTarea('${tarea._id}')">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="eliminarTarea('${tarea._id}')">Eliminar</button>
+            </td>
+          </tr>
+        `;
+        listaTareas.innerHTML += tareaHTML;
+      });
+    }).catch(error => {
+      console.error(error);
+    });
+  
+    function completarTarea(id, completed) {
+      axios.patch(`/completarTarea/${id}`, { completed: !completed }).then(response => {
+        alert('Tarea actualizada con éxito');
+        location.reload();
+      }).catch(error => {
+        console.error(error);
+      });
+    }
+    
+    function editarTarea(id) {
+      console.log('ID de tarea:', id);
+      window.location.href = `/editarTarea/${id}`;
+      return;
+    }
+  
+    function eliminarTarea(id) {
+      const confirmacion = confirm('¿Estás seguro de eliminar esta tarea?');
+      if (confirmacion) {
+        axios.delete(`/tasks/${id}`).then(response => {
+          alert('Tarea eliminada con éxito');
+          location.reload();
+        }).catch(error => {
+          console.error(error);
+        });
+      }
+    }
+  </script>
+</body>
+</html>

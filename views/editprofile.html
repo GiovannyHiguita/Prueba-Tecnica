@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Perfil</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      background: black;
+    }
+    .contenedor-principal {
+      width: 80%;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .contenedor-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .texto-accion {
+      font-size: 24px;
+      margin-right: 20px;
+    }
+    .texto-bienvenida {
+      font-size: 24px;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 40px;
+    }
+    .correo-rojo {
+      color: red;
+      font-weight: bold;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="contenedor-principal">
+    <div class="texto-bienvenida">
+      <h2>Editar Perfil</h2>
+    </div>
+    <div class="contenedor-flex">
+      <form id="form-edit-profile" method="post" style="width: 80%; margin: 40px auto; text-align: center;">
+        <div style="height: 20px;"></div>
+
+        <div class="form-group">
+          <input type="email" id="correo" name="correo" class="form-control" placeholder="Correo electrónico">
+        </div>
+
+        <div class="form-group">
+          <input type="password" id="contrasena-actual" name="contrasenaActual" class="form-control" placeholder="Contraseña actual">
+        </div>
+
+        <div class="form-group">
+          <input type="password" id="nueva-contrasena" name="nuevaContrasena" class="form-control" placeholder="Nueva contraseña">
+        </div>
+
+        <div class="form-group">
+          <input type="password" id="confirmar-contrasena" name="confirmarContrasena" class="form-control" placeholder="Confirmar contraseña">
+        </div>
+
+        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+          <button type="submit" class="btn btn-primary btn-sm">Actualizar perfil</button>
+          <button onclick="location.href='index'" class="btn btn-warning btn-sm">Regresar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      const cookieMatch = document.cookie.match(/token=([^;]*)/);
+      const token = cookieMatch ? cookieMatch[1] : null;
+      console.log('Token:', token);
+
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.get('http://localhost:3001/protected').then(response => {
+          const email = response.data.email;
+          document.getElementById('correo').value = email;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      } else {
+        window.location.href = 'http://localhost:3001/inicio';
+      }
+    });
+
+    document.getElementById('form-edit-profile').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const correo = document.getElementById('correo').value.trim();
+      const contrasenaActual = document.getElementById('contrasena-actual').value.trim();
+      const nuevaContrasena = document.getElementById('nueva-contrasena').value.trim();
+      const confirmarContrasena = document.getElementById('confirmar-contrasena').value.trim();
+
+      if (correo === '' || contrasenaActual === '' || nuevaContrasena === '' || confirmarContrasena === '') {
+        alert('Todos los campos son obligatorios');
+        return;
+      }
+
+      if (nuevaContrasena !== confirmarContrasena) {
+        alert('Contraseña nueva no coincide');
+        return;
+      }
+
+      try {
+        const response = await fetch('/verifyPassword', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo, contrasenaActual }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+        // Contraseña correcta, actualizar perfil
+          const updateResponse = await fetch('/editProfile', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ correo, contrasenaActual, nuevaContrasena, confirmarContrasena }),
+          });
+
+          const updateData = await updateResponse.json();
+          if (updateResponse.ok) {
+            alert('Perfil actualizado con éxito');
+              window.location.href = '/index';
+          } else {
+            alert(updateData.mensaje);
+          }
+        } else if (response.status === 401) {
+          alert(data.mensaje);
+        } else {
+          alert('Error al verificar contraseña');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
